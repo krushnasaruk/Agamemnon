@@ -3,10 +3,14 @@ import sys
 
 # Ensure current working directory and project root are at the top of sys.path
 project_root = os.path.dirname(os.path.abspath(__file__))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-if os.getcwd() not in sys.path:
-    sys.path.insert(0, os.getcwd())
+if project_root in sys.path:
+    sys.path.remove(project_root)
+sys.path.insert(0, project_root)
+
+cwd = os.getcwd()
+if cwd in sys.path and cwd != project_root:
+    sys.path.remove(cwd)
+    sys.path.insert(0, cwd)
 
 import argparse
 import yaml
