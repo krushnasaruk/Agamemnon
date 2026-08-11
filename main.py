@@ -123,8 +123,17 @@ def main():
     args = parser.parse_args()
 
     config = load_config(args.config)
-    if args.episodes:
-        config["rl_agent"]["episodes"] = args.episodes
+
+    # If --dashboard flag is passed, directly launch the web dashboard server
+    if args.dashboard:
+        print("\n=======================================================")
+        print(" Starting RL-NetCompress Dashboard Server")
+        print(" URL: http://127.0.0.1:8000")
+        print("=======================================================\n")
+        import uvicorn
+        from dashboard.app import app
+        uvicorn.run(app, host="127.0.0.1", port=8000)
+        return
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Running RL-NetCompress on Device: {device.upper()}")
