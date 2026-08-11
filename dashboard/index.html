@@ -588,11 +588,7 @@ print("Inference output shape:", outputs[0].shape)</pre>
       const code = button.nextElementSibling.innerText;
       navigator.clipboard.writeText(code).then(() => {
         button.innerText = 'Copied!';
-        setTimeout(() => button.innerText = 'Copy', 2000);
-      });
-    }
-
-    // Render Pareto Chart
+        setTimeout(() => button.innerText = 'Copy', 2    // Render Pareto Chart & Channels Chart
     let paretoChart, channelsChart;
 
     function initCharts(benchmarkData) {
@@ -616,6 +612,8 @@ print("Inference output shape:", outputs[0].shape)</pre>
         y: d.accuracy,
         name: d.method
       }));
+
+      if (paretoChart) paretoChart.destroy();
 
       paretoChart = new Chart(ctxPareto, {
         type: 'scatter',
@@ -646,20 +644,26 @@ print("Inference output shape:", outputs[0].shape)</pre>
       });
 
       // Channels Chart
+      const baseCh = (baseline && baseline.channels) ? baseline.channels : [64, 128, 256, 256, 512];
+      const rlCh = (rlModel && rlModel.channels) ? rlModel.channels : [48, 96, 192, 192, 256];
+      const labels = baseCh.map((_, i) => `Conv${i+1}`);
+
       const ctxChannels = document.getElementById('channelsChart').getContext('2d');
+      if (channelsChart) channelsChart.destroy();
+
       channelsChart = new Chart(ctxChannels, {
         type: 'bar',
         data: {
-          labels: ['Conv1', 'Conv2', 'Conv3', 'Conv4', 'Conv5'],
+          labels: labels,
           datasets: [{
             label: 'Baseline Channels',
-            data: [64, 128, 256, 256, 512],
+            data: baseCh,
             backgroundColor: 'rgba(148, 163, 184, 0.3)',
             borderColor: '#94a3b8',
             borderWidth: 1
           }, {
             label: 'RL Discovered',
-            data: [48, 96, 192, 192, 256],
+            data: rlCh,
             backgroundColor: '#38bdf8'
           }]
         },
@@ -697,28 +701,27 @@ print("Inference output shape:", outputs[0].shape)</pre>
     }
 
     // Render Topology Rows
-    function renderTopology() {
-      const layers = [
-        { name: 'Conv Block 1', base: 64, compressed: 48 },
-        { name: 'Conv Block 2', base: 128, compressed: 96 },
-        { name: 'Conv Block 3', base: 256, compressed: 192 },
-        { name: 'Conv Block 4', base: 256, compressed: 192 },
-        { name: 'Conv Block 5', base: 512, compressed: 256 }
-      ];
+    function renderTopology(benchmarkData) {
+      const baseline = benchmarkData.find(d => d.method.includes('Baseline')) || benchmarkData[0];
+      const rlModel = benchmarkData.find(d => d.method.includes('RL')) || benchmarkData[benchmarkData.length - 1];
+
+      const baseCh = (baseline && baseline.channels) ? baseline.channels : [64, 128, 256, 256, 512];
+      const rlCh = (rlModel && rlModel.channels) ? rlModel.channels : [48, 96, 192, 192, 256];
 
       const container = document.getElementById('topology-list');
       container.innerHTML = '';
 
-      layers.forEach(layer => {
-        const pct = Math.round((layer.compressed / layer.base) * 100);
+      baseCh.forEach((bCount, i) => {
+        const rCount = (rlCh[i] !== undefined) ? rlCh[i] : bCount;
+        const pct = Math.round((rCount / bCount) * 100);
         const row = document.createElement('div');
         row.className = 'layer-row';
         row.innerHTML = `
-          <div class="layer-name">${layer.name}</div>
+          <div class="layer-name">Conv Block ${i+1}</div>
           <div class="progress-track">
             <div class="progress-fill" style="width: ${pct}%;"></div>
           </div>
-          <div class="layer-meta">${layer.compressed} / ${layer.base} Ch (${pct}%)</div>
+          <div class="layer-meta">${rCount} / ${bCount} Ch (${pct}%)</div>
         `;
         container.appendChild(row);
       });
@@ -754,10 +757,12 @@ print("Inference output shape:", outputs[0].shape)</pre>
         const data = await res.json();
         populateTable(data);
         initCharts(data);
-        renderTopology();
+        renderTopology(data);
         loadHardwareProfiles();
       } catch (e) {
         console.error("Dashboard data load error:", e);
+      }
+    }or:", e);
       }
     }
 

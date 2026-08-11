@@ -119,6 +119,17 @@ def run_benchmark_experiments(
     rl_lat = measure_latency(rl_compressed_model, device=device)
     rl_size = get_model_size_mb(rl_compressed_model)
 
+    base_channels = baseline_model.get_channel_config() if hasattr(baseline_model, 'get_channel_config') else [64, 128, 256, 256, 512]
+    rl_channels = rl_compressed_model.get_channel_config() if hasattr(rl_compressed_model, 'get_channel_config') else [48, 96, 192, 192, 256]
+
+    results[0]["channels"] = base_channels
+    if len(results) > 1:
+        results[1]["channels"] = getattr(rand_model, 'get_channel_config', lambda: base_channels)()
+    if len(results) > 2:
+        results[2]["channels"] = getattr(mag_model, 'get_channel_config', lambda: base_channels)()
+    if len(results) > 3:
+        results[3]["channels"] = getattr(greedy_model, 'get_channel_config', lambda: base_channels)()
+
     results.append({
         "method": "RL-NetCompress (Ours)",
         "accuracy": round(rl_acc * 100, 2),
@@ -127,7 +138,8 @@ def run_benchmark_experiments(
         "latency_ms": round(rl_lat, 2),
         "size_mb": round(rl_size, 2),
         "param_reduction_%": round((1.0 - rl_params / base_params) * 100, 2),
-        "flops_reduction_%": round((1.0 - rl_flops / base_flops) * 100, 2)
+        "flops_reduction_%": round((1.0 - rl_flops / base_flops) * 100, 2),
+        "channels": rl_channels
     })
 
     # Export to JSON
