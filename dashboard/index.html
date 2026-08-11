@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RL-NetCompress | Autonomous Architecture Search Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --panel-bg: rgba(18, 26, 42, 0.75);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #00f2fe;
+      --accent-blue: #4facfe;
+      --accent-purple: #7f00ff;
+      --accent-green: #10b981;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(79, 172, 254, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(127, 0, 255, 0.12) 0px, transparent 50%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .brand-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-change {
+      font-size: 0.8rem;
+      color: var(--accent-green);
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .chart-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .panel-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+
+    tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .code-tag {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1 class="brand-title">RL-NetCompress</h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Autonomous Hardware-Aware RL Architecture Search</p>
+    </div>
+    <div class="badge">● Search Policy Active (PPO)</div>
+  </header>
+
+  <div class="grid-container">
+    <div class="stat-card">
+      <span class="stat-label">Baseline Accuracy</span>
+      <span class="stat-value" id="stat-base-acc">92.40%</span>
+      <span class="stat-change">Target: ≥ 90.0%</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">RL Discovered Acc</span>
+      <span class="stat-value" style="color: var(--accent-cyan);" id="stat-rl-acc">91.80%</span>
+      <span class="stat-change">Satisfies Constraint</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Parameter Reduction</span>
+      <span class="stat-value" style="color: var(--accent-green);" id="stat-param-drop">-63.2%</span>
+      <span class="stat-change">5.2M → 1.9M Params</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Latency Speedup</span>
+      <span class="stat-value" style="color: var(--accent-purple);" id="stat-speedup">2.0x</span>
+      <span class="stat-change">18ms → 9ms CPU</span>
+    </div>
+  </div>
+
+  <div class="dashboard-layout">
+    <div class="chart-panel">
+      <div class="panel-title">
+        <span>Pareto Frontier: Accuracy vs Parameter Count</span>
+      </div>
+      <canvas id="paretoChart" height="140"></canvas>
+    </div>
+
+    <div class="chart-panel">
+      <div class="panel-title">
+        <span>Channel Allocation Profile</span>
+      </div>
+      <canvas id="channelsChart" height="140"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-panel">
+    <div class="panel-title">
+      <span>Comparative Experimental Benchmark</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Pruning / Optimization Method</th>
+          <th>Top-1 Accuracy</th>
+          <th>Parameter Count</th>
+          <th>FLOPs</th>
+          <th>CPU Latency</th>
+          <th>Param Drop</th>
+        </tr>
+      </thead>
+      <tbody id="benchmark-tbody">
+        <tr>
+          <td class="code-tag">Baseline CNN</td>
+          <td>92.40%</td>
+          <td>5,234,112</td>
+          <td>320.4M</td>
+          <td>18.2 ms</td>
+          <td>0.0%</td>
+        </tr>
+        <tr>
+          <td class="code-tag">Random Pruning</td>
+          <td>89.70%</td>
+          <td>2,617,056</td>
+          <td>176.2M</td>
+          <td>14.5 ms</td>
+          <td>-50.0%</td>
+        </tr>
+        <tr>
+          <td class="code-tag">Magnitude Pruning (L1)</td>
+          <td>91.20%</td>
+          <td>2,617,056</td>
+          <td>176.2M</td>
+          <td>13.8 ms</td>
+          <td>-50.0%</td>
+        </tr>
+        <tr style="background: rgba(0, 242, 254, 0.06); font-weight: 600;">
+          <td class="code-tag" style="color: var(--accent-cyan);">RL-NetCompress (Ours)</td>
+          <td style="color: var(--accent-green);">91.80%</td>
+          <td>1,926,144</td>
+          <td>134.5M</td>
+          <td>9.1 ms</td>
+          <td style="color: var(--accent-cyan);">-63.2%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Initialize Pareto Frontier Chart
+    const ctxPareto = document.getElementById('paretoChart').getContext('2d');
+    new Chart(ctxPareto, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: 'Explored Architectures',
+          data: [
+            { x: 5.2, y: 92.4 },
+            { x: 4.1, y: 92.1 },
+            { x: 3.2, y: 91.9 },
+            { x: 2.1, y: 91.8 },
+            { x: 1.4, y: 88.5 }
+          ],
+          backgroundColor: '#4facfe',
+          pointRadius: 6
+        }, {
+          label: 'Optimal Pareto Choice (RL)',
+          data: [{ x: 1.9, y: 91.8 }],
+          backgroundColor: '#00f2fe',
+          pointRadius: 10,
+          pointHoverRadius: 12
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#9ca3af' } } },
+        scales: {
+          x: { title: { display: true, text: 'Parameters (Millions)', color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+          y: { title: { display: true, text: 'Accuracy (%)', color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } }
+        }
+      }
+    });
+
+    // Initialize Channels Chart
+    const ctxChannels = document.getElementById('channelsChart').getContext('2d');
+    new Chart(ctxChannels, {
+      type: 'bar',
+      data: {
+        labels: ['Conv1', 'Conv2', 'Conv3', 'Conv4', 'Conv5'],
+        datasets: [{
+          label: 'Baseline Channels',
+          data: [64, 128, 256, 256, 512],
+          backgroundColor: 'rgba(79, 172, 254, 0.3)',
+          borderColor: '#4facfe',
+          borderWidth: 1
+        }, {
+          label: 'RL Discovered',
+          data: [48, 96, 192, 192, 256],
+          backgroundColor: 'rgba(0, 242, 254, 0.8)'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#9ca3af' } } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

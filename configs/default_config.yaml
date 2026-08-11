@@ -1,0 +1,61 @@
+# System Configuration for RL-NetCompress
+
+dataset:
+  name: "CIFAR-10"
+  data_dir: "./data"
+  batch_size: 128
+  num_workers: 2
+  image_size: 32
+  num_classes: 10
+
+baseline_model:
+  channels: [64, 128, 256, 256, 512]
+  fc_dims: [512, 10]
+  dropout: 0.1
+  checkpoint_path: "./checkpoints/baseline_cnn.pt"
+  target_accuracy: 0.90 # Target threshold 90.0%
+
+baseline_training:
+  epochs: 1
+  batch_size: 128
+  lr: 0.001
+  weight_decay: 0.0005
+  device: "cuda" # Automatically falls back to cpu if cuda unavailable
+
+finetuning:
+  epochs_per_action: 2
+  lr: 0.0003
+  batch_size: 128
+
+rl_environment:
+  target_accuracy: 0.90
+  max_steps_per_episode: 15
+  reward_weights:
+    w_acc: 2.0
+    w_params: 1.0
+    w_flops: 1.0
+    w_latency: 1.0
+  accuracy_penalty_multiplier: 10.0
+
+rl_agent:
+  algorithm: "PPO" # Options: "PPO", "DQN"
+  episodes: 40
+  gamma: 0.99
+  lr: 0.0003
+  dqn:
+    buffer_capacity: 1000
+    batch_size: 32
+    target_update_freq: 5
+    epsilon_start: 1.0
+    epsilon_end: 0.05
+    epsilon_decay: 0.95
+  ppo:
+    clip_eps: 0.2
+    ppo_epochs: 4
+    mini_batch_size: 16
+    gae_lambda: 0.95
+    entropy_coef: 0.01
+
+benchmarks:
+  pruning_ratios: [0.2, 0.4, 0.6, 0.75]
+  results_dir: "./results"
