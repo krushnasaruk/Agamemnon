@@ -54,12 +54,14 @@
       flex-shrink: 0;
     }
 
+    /* Collapsed State */
     aside.floating-sidebar.collapsed {
-      width: 80px;
-      padding: 20px 12px;
+      width: 76px;
+      padding: 20px 10px;
+      align-items: center;
     }
 
-    /* Toggle Expand/Collapse Button */
+    /* Toggle Button */
     .collapse-toggle {
       position: absolute;
       top: 24px;
@@ -76,7 +78,7 @@
       cursor: pointer;
       font-size: 0.75rem;
       color: var(--text-sub);
-      z-index: 10;
+      z-index: 20;
       transition: transform 0.3s ease;
     }
 
@@ -84,18 +86,24 @@
       transform: rotate(180deg);
     }
 
-    /* Top Logo */
+    /* Logo */
     .sidebar-brand {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 20px;
       padding-left: 4px;
+      width: 100%;
+    }
+
+    .floating-sidebar.collapsed .sidebar-brand {
+      padding-left: 0;
+      justify-content: center;
     }
 
     .brand-icon {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       background: var(--accent-black);
       color: #ffffff;
       border-radius: 10px;
@@ -112,19 +120,6 @@
       font-weight: 800;
       color: var(--text-main);
       white-space: nowrap;
-      transition: opacity 0.2s ease;
-    }
-
-    .floating-sidebar.collapsed .brand-text,
-    .floating-sidebar.collapsed .search-container,
-    .floating-sidebar.collapsed .section-title,
-    .floating-sidebar.collapsed .tree-branch,
-    .floating-sidebar.collapsed .nav-text,
-    .floating-sidebar.collapsed .profile-details,
-    .floating-sidebar.collapsed .profile-caret {
-      opacity: 0;
-      pointer-events: none;
-      display: none;
     }
 
     /* Search Box */
@@ -139,6 +134,15 @@
       justify-content: space-between;
       color: var(--text-muted);
       font-size: 0.82rem;
+      width: 100%;
+    }
+
+    .floating-sidebar.collapsed .search-container {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      justify-content: center;
+      border-radius: 12px;
     }
 
     .kbd-shortcut {
@@ -153,12 +157,12 @@
       border-radius: 4px;
       font-size: 0.7rem;
       font-family: 'JetBrains Mono', monospace;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
-    /* Navigation Sections */
+    /* Nav Sections */
     .nav-section {
       margin-bottom: 18px;
+      width: 100%;
     }
 
     .section-title {
@@ -169,13 +173,20 @@
       letter-spacing: 0.08em;
       margin-bottom: 8px;
       padding-left: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .nav-tree {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+    .floating-sidebar.collapsed .section-title {
+      justify-content: center;
+      padding-left: 0;
+      font-size: 0.62rem;
+    }
+
+    .nav-parent-wrapper {
+      position: relative;
+      width: 100%;
     }
 
     .nav-parent {
@@ -189,15 +200,20 @@
       font-weight: 700;
       color: var(--text-main);
       cursor: pointer;
+      width: 100%;
     }
 
     .floating-sidebar.collapsed .nav-parent {
+      width: 44px;
+      height: 44px;
+      padding: 0;
       justify-content: center;
-      padding: 10px;
+      border-radius: 14px;
+      margin: 0 auto;
     }
 
     .nav-icon {
-      font-size: 1rem;
+      font-size: 1.1rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -239,15 +255,34 @@
       background: rgba(0, 0, 0, 0.08);
     }
 
-    .tree-item:hover {
-      background: #f1f5f9;
-      color: var(--text-main);
-    }
-
-    .tree-item.active {
+    .tree-item:hover, .tree-item.active {
       background: #f1f5f9;
       color: var(--text-main);
       font-weight: 700;
+    }
+
+    /* Flyout Menu for Collapsed Sidebar */
+    .flyout-menu {
+      display: none;
+      position: absolute;
+      left: 56px;
+      top: 0;
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      border-radius: 16px;
+      padding: 12px 14px;
+      width: 160px;
+      z-index: 100;
+    }
+
+    .flyout-menu .tree-list {
+      margin-left: 6px;
+      padding-left: 8px;
+    }
+
+    aside.floating-sidebar.collapsed .nav-parent-wrapper:hover .flyout-menu {
+      display: block;
     }
 
     .nav-simple-item {
@@ -260,12 +295,15 @@
       font-weight: 600;
       color: var(--text-sub);
       cursor: pointer;
-      transition: all 0.15s ease;
+      width: 100%;
     }
 
     .floating-sidebar.collapsed .nav-simple-item {
+      width: 42px;
+      height: 42px;
+      padding: 0;
       justify-content: center;
-      padding: 10px;
+      margin: 0 auto;
     }
 
     .nav-simple-item:hover {
@@ -273,11 +311,12 @@
       color: var(--text-main);
     }
 
-    /* Message / Hardware Contacts List */
+    /* Contact / Hardware Items */
     .contacts-list {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      width: 100%;
     }
 
     .contact-item {
@@ -289,11 +328,17 @@
       font-size: 0.82rem;
       font-weight: 600;
       color: var(--text-main);
+      width: 100%;
+    }
+
+    .floating-sidebar.collapsed .contact-item {
+      justify-content: center;
+      padding: 4px;
     }
 
     .contact-avatar {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: #e2e8f0;
       display: flex;
@@ -327,19 +372,21 @@
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
+      width: 100%;
     }
 
     .floating-sidebar.collapsed .profile-card {
-      padding: 6px;
+      width: 44px;
+      height: 44px;
+      padding: 0;
       justify-content: center;
       border-radius: 50%;
-      background: transparent;
-      border: none;
+      background: #f8fafc;
     }
 
     .profile-avatar-large {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       background: #0f172a;
       color: #ffffff;
@@ -347,7 +394,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       flex-shrink: 0;
     }
 
@@ -369,6 +416,20 @@
       color: var(--text-muted);
       text-transform: uppercase;
       font-weight: 600;
+    }
+
+    /* Hide text elements in collapsed state */
+    .floating-sidebar.collapsed .brand-text,
+    .floating-sidebar.collapsed .search-text,
+    .floating-sidebar.collapsed .kbd-shortcut,
+    .floating-sidebar.collapsed .section-title-plus,
+    .floating-sidebar.collapsed .tree-list,
+    .floating-sidebar.collapsed .nav-text,
+    .floating-sidebar.collapsed .nav-caret,
+    .floating-sidebar.collapsed .contact-name,
+    .floating-sidebar.collapsed .profile-details,
+    .floating-sidebar.collapsed .profile-caret {
+      display: none !important;
     }
 
     /* -------------------------------------------------------------
@@ -401,7 +462,6 @@
       font-weight: 800;
     }
 
-    /* Stat Box Grid */
     .stat-cards-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -435,7 +495,6 @@
       display: inline-block;
     }
 
-    /* Benchmark Table */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -459,7 +518,6 @@
       background: rgba(163, 230, 53, 0.15);
     }
 
-    /* Tab View Toggle */
     .tab-view-container {
       display: none;
     }
@@ -492,7 +550,8 @@
     </div>
 
     <div class="search-container">
-      <span>🔍 Search</span>
+      <span class="nav-icon">🔍</span>
+      <span class="search-text">Search</span>
       <div class="kbd-shortcut">
         <span class="kbd-badge">⌘</span>
         <span class="kbd-badge">S</span>
@@ -501,23 +560,37 @@
 
     <!-- MAIN NAV SECTION -->
     <div class="nav-section">
-      <div class="section-title">MAIN</div>
+      <div class="section-title">
+        <span>MAIN</span>
+      </div>
       
-      <div class="nav-parent">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span class="nav-icon">⊞</span>
-          <span class="nav-text">Dashboard</span>
+      <div class="nav-parent-wrapper">
+        <div class="nav-parent">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="nav-icon">⊞</span>
+            <span class="nav-text">Dashboard</span>
+          </div>
+          <span class="nav-caret" style="font-size: 0.75rem;">▲</span>
         </div>
-        <span class="nav-text" style="font-size: 0.75rem;">▲</span>
+
+        <!-- Flyout Popover Menu for Collapsed Sidebar -->
+        <div class="flyout-menu">
+          <ul class="tree-list" style="display: flex !important;">
+            <li class="tree-item active" onclick="switchNav('overview', this)">Overview</li>
+            <li class="tree-item" onclick="switchNav('topology', this)">Topology</li>
+            <li class="tree-item" onclick="switchNav('hardware', this)">Insights</li>
+          </ul>
+        </div>
       </div>
 
+      <!-- Regular Tree View when Expanded -->
       <ul class="tree-list">
         <li class="tree-item active" onclick="switchNav('overview', this)">Overview</li>
         <li class="tree-item" onclick="switchNav('topology', this)">Topology</li>
         <li class="tree-item" onclick="switchNav('hardware', this)">Insights</li>
       </ul>
 
-      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 4px;">
+      <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px; width: 100%;">
         <div class="nav-simple-item" onclick="switchNav('datasets', this)">
           <span class="nav-icon">📄</span>
           <span class="nav-text">Dataset Studio</span>
@@ -534,10 +607,10 @@
     </div>
 
     <!-- HARDWARE / MESSAGES SECTION -->
-    <div class="nav-section" style="margin-top: 10px;">
-      <div class="section-title" style="display: flex; justify-content: space-between;">
+    <div class="nav-section" style="margin-top: 6px;">
+      <div class="section-title">
         <span>HARDWARE</span>
-        <span>+</span>
+        <span class="section-title-plus">+</span>
       </div>
       <div class="contacts-list">
         <div class="contact-item">
@@ -545,21 +618,21 @@
             EH
             <div class="status-dot-mini"></div>
           </div>
-          <span class="nav-text">Cloud CUDA (T4)</span>
+          <span class="contact-name">Cloud CUDA (T4)</span>
         </div>
         <div class="contact-item">
           <div class="contact-avatar">
             JJ
             <div class="status-dot-mini"></div>
           </div>
-          <span class="nav-text">Apple M2 Engine</span>
+          <span class="contact-name">Apple M2 Engine</span>
         </div>
         <div class="contact-item">
           <div class="contact-avatar">
             CF
             <div class="status-dot-mini"></div>
           </div>
-          <span class="nav-text">Raspberry Pi 4</span>
+          <span class="contact-name">Raspberry Pi 4</span>
         </div>
       </div>
     </div>
