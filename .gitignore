@@ -30,7 +30,6 @@ env/
 .venv
 
 # PyTorch & Datasets & Results
-data/
 checkpoints/
 results/
 *.pt
