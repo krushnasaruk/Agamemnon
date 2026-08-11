@@ -30,19 +30,16 @@ def get_cifar_dataloaders(
         transforms.Normalize(mean, std),
     ])
 
-    # Check if dataset already downloaded locally in data_dir
-    cifar_local_path = os.path.join(data_dir, "cifar-10-batches-py")
-    
-    if os.path.exists(cifar_local_path):
-        try:
-            train_dataset = datasets.CIFAR10(root=data_dir, train=True, download=False, transform=train_transform)
-            test_dataset = datasets.CIFAR10(root=data_dir, train=False, download=False, transform=test_transform)
-            print(f"[Data] Successfully loaded local {dataset_name} ({len(train_dataset)} train, {len(test_dataset)} val samples).")
-            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-            test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-            return train_loader, test_loader
-        except Exception:
-            pass
+    # Try loading real CIFAR-10 dataset (downloads automatically if missing)
+    try:
+        train_dataset = datasets.CIFAR10(root=data_dir, train=True, download=True, transform=train_transform)
+        test_dataset = datasets.CIFAR10(root=data_dir, train=False, download=True, transform=test_transform)
+        print(f"[Data] Successfully loaded real {dataset_name} ({len(train_dataset)} train, {len(test_dataset)} val samples).")
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+        return train_loader, test_loader
+    except Exception as e:
+        print(f"[Data] Real dataset load failed ({e}). Falling back to fast dataset generator.")
 
     # Instant High-Speed Local Dataset Generator (0-second startup)
     num_train = 3000
