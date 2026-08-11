@@ -124,7 +124,26 @@ python main.py --dashboard
 ```
 Open **[http://127.0.0.1:8000](http://127.0.0.1:8000)** in your browser.
 
-### 4. Run Unit Tests
+### 4. Integration into Your PyTorch Project (Python SDK)
+You can easily use RL-NetCompress in your own external PyTorch projects with 3 lines of code using the `netcompress` SDK:
+
+```python
+from netcompress import RLCompressor
+
+# 1. Initialize compressor with your PyTorch model and validation loader
+compressor = RLCompressor(model=my_model, val_loader=val_loader, target_accuracy=0.88)
+
+# 2. Run autonomous RL architecture search
+compressed_model = compressor.compress(episodes=30, agent_type="PPO")
+
+# 3. Export compressed model to ONNX
+compressor.export_onnx("./models/compressed_model.onnx")
+
+# Print parameter, FLOPs, and latency reduction metrics summary
+print(compressor.get_summary())
+```
+
+### 5. Run Unit Tests
 ```bash
 python -m unittest discover -s tests
 ```
