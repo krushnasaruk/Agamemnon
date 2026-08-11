@@ -1,8 +1,12 @@
 import os
 import sys
 
-# Ensure project root directory is in sys.path for Colab / Jupyter compatibility
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Ensure current working directory and project root are at the top of sys.path
+project_root = os.path.dirname(os.path.abspath(__file__))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+if os.getcwd() not in sys.path:
+    sys.path.insert(0, os.getcwd())
 
 import argparse
 import yaml
@@ -140,6 +144,9 @@ def main():
         uvicorn.run(app, host="127.0.0.1", port=8000)
         return
 
+    if args.episodes:
+        config["rl_agent"]["episodes"] = args.episodes
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Running RL-NetCompress on Device: {device.upper()}")
 
@@ -193,7 +200,7 @@ def main():
         output_dir=config["benchmarks"]["results_dir"]
     )
 
-    # 5. Export Discovered Model to ONNX
+    # 5. Export Discovered Model to ONNX / PyTorch
     onnx_path = "./results/rl_discovered_model.onnx"
     if hasattr(rl_discovered_model, "export_onnx"):
         rl_discovered_model.export_onnx(onnx_path)
@@ -201,14 +208,7 @@ def main():
         comp_wrapper = CompressedCNN(channels=rl_discovered_model.get_channel_config())
         comp_wrapper.load_state_dict(rl_discovered_model.state_dict())
         comp_wrapper.export_onnx(onnx_path)
-    print(f"Exported final compressed model to ONNX: {onnx_path}")
-
-    # 6. Launch Web Dashboard Server if requested
-    if args.dashboard:
-        print("\nStarting RL-NetCompress Dashboard Server at http://127.0.0.1:8000 ...")
-        import uvicorn
-        from dashboard.app import app
-        uvicorn.run(app, host="127.0.0.1", port=8000)
+    print(f"Exported final compressed model to: {onnx_path}")
 
 if __name__ == "__main__":
     main()
