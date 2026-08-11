@@ -67,7 +67,7 @@ class DQNAgent(BaseRLAgent):
             q_values = self.policy_net(state_tensor)
             return int(torch.argmax(q_values, dim=1).item())
 
-    def store_transition(self, state, action, reward, next_state, done):
+    def store_transition(self, state, action, reward, next_state, done, *args, **kwargs):
         self.memory.append((state, action, reward, next_state, done))
 
     def update(self) -> dict:

@@ -11,7 +11,7 @@ class TestAgents(unittest.TestCase):
         action = agent.select_action(dummy_state)
         self.assertTrue(0 <= action < 10)
 
-        # Store transitions
+        # Store transitions with and without extra keyword arguments
         for _ in range(5):
             s = np.random.randn(10).astype(np.float32)
             a = np.random.randint(0, 10)
@@ -19,6 +19,7 @@ class TestAgents(unittest.TestCase):
             ns = np.random.randn(10).astype(np.float32)
             d = False
             agent.store_transition(s, a, r, ns, d)
+            agent.store_transition(s, a, r, ns, d, log_prob=-0.5, value=0.8)
 
         loss_info = agent.update()
         self.assertIn("loss", loss_info)
