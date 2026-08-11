@@ -10,21 +10,15 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg-dark: #0b0d12;
-      --sidebar-bg: #11141c;
-      --card-bg: #161a24;
-      --card-inner: #1c2230;
-      --border-color: rgba(255, 255, 255, 0.08);
-      
-      /* Vibrant Electric Neon Lime */
-      --lime-neon: #a3e635;
-      --lime-bright: #bef264;
-      --lime-dark: #4d7c0f;
-      --lime-glow: rgba(163, 230, 53, 0.15);
-      
-      --text-white: #ffffff;
-      --text-sub: #94a3b8;
-      --text-muted: #64748b;
+      --bg-page: #f1f3f7;
+      --sidebar-bg: #ffffff;
+      --card-bg: #ffffff;
+      --accent-lime: #a3e635;
+      --accent-black: #0f172a;
+      --border-light: rgba(0, 0, 0, 0.06);
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --text-muted: #94a3b8;
     }
 
     * {
@@ -35,104 +29,231 @@
 
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: var(--bg-dark);
-      color: var(--text-white);
+      background-color: var(--bg-page);
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
+      padding: 16px;
+      gap: 16px;
       overflow-x: hidden;
     }
 
     /* -------------------------------------------------------------
-       1. LEFT SIDEBAR NAVIGATION
+       FLOATING COLLAPSIBLE PILL SIDEBAR
     ------------------------------------------------------------- */
-    aside.sidebar {
-      width: 240px;
+    aside.floating-sidebar {
+      width: 260px;
       background: var(--sidebar-bg);
-      border-right: 1px solid var(--border-color);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
       display: flex;
       flex-direction: column;
-      padding: 16px 14px;
+      padding: 20px 16px;
+      position: relative;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       flex-shrink: 0;
     }
 
-    .user-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
+    aside.floating-sidebar.collapsed {
+      width: 80px;
+      padding: 20px 12px;
     }
 
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .avatar-img {
-      width: 34px;
-      height: 34px;
+    /* Toggle Expand/Collapse Button */
+    .collapse-toggle {
+      position: absolute;
+      top: 24px;
+      right: -12px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      background: var(--lime-neon);
-      color: #000;
-      font-weight: 800;
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.85rem;
+      cursor: pointer;
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      z-index: 10;
+      transition: transform 0.3s ease;
     }
 
-    .user-name {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--text-white);
+    .floating-sidebar.collapsed .collapse-toggle {
+      transform: rotate(180deg);
     }
 
-    .search-bar {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
+    /* Top Logo */
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-left: 4px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent-black);
+      color: #ffffff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-main);
+      white-space: nowrap;
+      transition: opacity 0.2s ease;
+    }
+
+    .floating-sidebar.collapsed .brand-text,
+    .floating-sidebar.collapsed .search-container,
+    .floating-sidebar.collapsed .section-title,
+    .floating-sidebar.collapsed .tree-branch,
+    .floating-sidebar.collapsed .nav-text,
+    .floating-sidebar.collapsed .profile-details,
+    .floating-sidebar.collapsed .profile-caret {
+      opacity: 0;
+      pointer-events: none;
+      display: none;
+    }
+
+    /* Search Box */
+    .search-container {
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
       padding: 8px 12px;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.82rem;
     }
 
-    .kbd-tag {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 2px 6px;
+    .kbd-shortcut {
+      display: flex;
+      gap: 4px;
+    }
+
+    .kbd-badge {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      padding: 1px 6px;
       border-radius: 4px;
       font-size: 0.7rem;
       font-family: 'JetBrains Mono', monospace;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
-    .nav-group {
-      margin-bottom: 20px;
+    /* Navigation Sections */
+    .nav-section {
+      margin-bottom: 18px;
     }
 
-    .group-title {
+    .section-title {
       font-size: 0.68rem;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       padding-left: 6px;
     }
 
-    .nav-items {
+    .nav-tree {
       list-style: none;
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
 
-    .nav-link {
+    .nav-parent {
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .floating-sidebar.collapsed .nav-parent {
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .nav-icon {
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Tree Branch Lines */
+    .tree-list {
+      list-style: none;
+      margin-left: 20px;
+      padding-left: 12px;
+      border-left: 1px solid rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .tree-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tree-item::before {
+      content: '';
+      position: absolute;
+      left: -13px;
+      top: 50%;
+      width: 10px;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .tree-item:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+    }
+
+    .tree-item.active {
+      background: #f1f5f9;
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .nav-simple-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       padding: 9px 12px;
       border-radius: 10px;
       font-size: 0.85rem;
@@ -142,209 +263,179 @@
       transition: all 0.15s ease;
     }
 
-    .nav-link:hover {
-      color: var(--text-white);
-      background: rgba(255, 255, 255, 0.04);
+    .floating-sidebar.collapsed .nav-simple-item {
+      justify-content: center;
+      padding: 10px;
     }
 
-    /* Vibrant Electric Lime Active Pill */
-    .nav-link.active {
-      background: var(--lime-neon);
-      color: #000000;
-      font-weight: 800;
-      box-shadow: 0 4px 14px rgba(163, 230, 53, 0.3);
+    .nav-simple-item:hover {
+      background: #f8fafc;
+      color: var(--text-main);
     }
 
-    .sidebar-brand {
-      margin-top: auto;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      padding-top: 14px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    /* -------------------------------------------------------------
-       2. MAIN CENTER CONTENT
-    ------------------------------------------------------------- */
-    main.content-area {
-      flex: 1;
+    /* Message / Hardware Contacts List */
+    .contacts-list {
       display: flex;
       flex-direction: column;
-      padding: 20px 24px;
-      overflow-y: auto;
-      min-width: 0;
-    }
-
-    .header-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .breadcrumb-trail {
-      display: flex;
-      align-items: center;
       gap: 8px;
-      font-size: 0.82rem;
-      color: var(--text-muted);
     }
 
-    .breadcrumb-trail span.active {
-      color: var(--text-white);
-      font-weight: 600;
-    }
-
-    .header-tools {
+    .contact-item {
       display: flex;
       align-items: center;
       gap: 10px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-main);
     }
 
-    .tool-icon {
-      width: 32px;
-      height: 32px;
+    .contact-avatar {
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
+      background: #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.82rem;
-      color: var(--text-sub);
+      font-size: 0.75rem;
+      font-weight: 700;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .status-dot-mini {
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      border: 2px solid #ffffff;
+    }
+
+    /* Bottom Profile Card */
+    .profile-card {
+      margin-top: auto;
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       cursor: pointer;
     }
 
-    .page-title-row {
+    .floating-sidebar.collapsed .profile-card {
+      padding: 6px;
+      justify-content: center;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+    }
+
+    .profile-avatar-large {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .profile-details {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      margin-left: 10px;
+    }
+
+    .profile-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .profile-role {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* -------------------------------------------------------------
+       MAIN CANVAS CONTENT
+    ------------------------------------------------------------- */
+    main.main-viewport {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .content-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    }
+
+    .header-flex {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
     }
 
-    .main-title {
+    .page-heading {
       font-size: 1.5rem;
-      font-weight: 700;
+      font-weight: 800;
     }
 
-    .dropdown-pill {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-sub);
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    /* Top 4 Stat Cards */
-    .stat-row {
+    /* Stat Box Grid */
+    .stat-cards-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 14px;
       margin-bottom: 20px;
     }
 
-    .stat-box {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
+    .stat-card-white {
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
       border-radius: 14px;
-      padding: 16px 18px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
-    .stat-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .stat-number {
-      font-size: 1.7rem;
+    .stat-val-big {
+      font-size: 1.6rem;
       font-weight: 800;
       font-family: 'JetBrains Mono', monospace;
-      letter-spacing: -0.02em;
     }
 
-    .stat-indicator {
+    .badge-lime {
+      background: var(--accent-lime);
+      color: #0f172a;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
       font-size: 0.75rem;
-      color: var(--lime-neon);
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* Middle Layout Grid */
-    .middle-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    .card-panel {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 20px;
-    }
-
-    .panel-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .panel-heading {
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    /* Donut & Legend Container */
-    .donut-flex {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
-
-    .legend-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      flex: 1;
-    }
-
-    .legend-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-    }
-
-    .legend-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
       display: inline-block;
-      margin-right: 6px;
     }
 
-    /* Bottom Section */
-    .table-panel {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 20px;
-    }
-
+    /* Benchmark Table */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -354,7 +445,7 @@
     th, td {
       padding: 12px 14px;
       text-align: left;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-light);
     }
 
     th {
@@ -364,337 +455,219 @@
       text-transform: uppercase;
     }
 
-    tr.highlight-row {
-      background: var(--lime-glow);
+    tr.highlight-lime {
+      background: rgba(163, 230, 53, 0.15);
     }
 
-    .tag-badge {
-      font-family: 'JetBrains Mono', monospace;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 0.78rem;
-    }
-
-    .tag-badge.lime {
-      background: var(--lime-neon);
-      color: #000000;
-      font-weight: 800;
-    }
-
-    /* -------------------------------------------------------------
-       3. RIGHT SIDEBAR NOTIFICATIONS & TIMELINE
-    ------------------------------------------------------------- */
-    aside.right-sidebar {
-      width: 270px;
-      background: var(--sidebar-bg);
-      border-left: 1px solid var(--border-color);
-      padding: 18px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-      flex-shrink: 0;
-    }
-
-    .right-header {
-      font-size: 0.9rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .notif-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .notif-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 0.78rem;
-    }
-
-    .notif-bubble {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--lime-glow);
-      color: var(--lime-neon);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .activity-timeline {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      position: relative;
-    }
-
-    .act-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 0.78rem;
-    }
-
-    .act-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--lime-neon);
-      margin-top: 4px;
-      flex-shrink: 0;
-    }
-
-    .manager-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-color);
-      font-size: 0.8rem;
-    }
-
-    .manager-card.active-pill {
-      background: var(--lime-neon);
-      color: #000000;
-      font-weight: 700;
-    }
-
-    /* Tab Views */
-    .tab-content-view {
+    /* Tab View Toggle */
+    .tab-view-container {
       display: none;
     }
 
-    .tab-content-view.active {
+    .tab-view-container.active {
       display: block;
     }
 
-    .code-snippet {
-      background: #06080e;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 14px;
+    .code-box {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
-      color: #e2e8f0;
+      font-size: 0.85rem;
       overflow-x: auto;
-      position: relative;
       margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-  <!-- LEFT SIDEBAR -->
-  <aside class="sidebar">
-    <div class="user-header">
-      <div class="user-info">
-        <div class="avatar-img">KS</div>
-        <span class="user-name">Krushna Saruk</span>
-      </div>
-      <span style="font-size: 0.8rem; color: var(--text-muted);">▾</span>
-    </div>
-
-    <div class="search-bar">
-      <span>🔍 Search...</span>
-      <span class="kbd-tag">⌘K</span>
-    </div>
-
-    <div class="nav-group">
-      <div class="group-title">Dashboards</div>
-      <ul class="nav-items">
-        <li class="nav-link active" onclick="switchTab('overview', this)">
-          <span>⁝::</span> Overview
-        </li>
-        <li class="nav-link" onclick="switchTab('topology', this)">
-          <span>🧬</span> Layer Topology
-        </li>
-        <li class="nav-link" onclick="switchTab('hardware', this)">
-          <span>⚡</span> Hardware Profiler
-        </li>
-        <li class="nav-link" onclick="switchTab('datasets', this)">
-          <span>📦</span> Dataset Studio
-        </li>
-      </ul>
-    </div>
-
-    <div class="nav-group">
-      <div class="group-title">Settings</div>
-      <ul class="nav-list">
-        <li class="nav-link" onclick="switchTab('sdk', this)">
-          <span>🛠️</span> Python SDK Exporter
-        </li>
-        <li class="nav-link" onclick="switchTab('policy', this)">
-          <span>⚙️</span> RL Policy Config
-        </li>
-      </ul>
-    </div>
+  <!-- FLOATING COLLAPSIBLE PILL SIDEBAR -->
+  <aside class="floating-sidebar" id="sidebar">
+    <div class="collapse-toggle" onclick="toggleSidebar()">‹</div>
 
     <div class="sidebar-brand">
-      <span style="color: var(--lime-neon);">⚡</span> RL-NetCompress
+      <div class="brand-icon">✚</div>
+      <span class="brand-text">RL-Compress</span>
+    </div>
+
+    <div class="search-container">
+      <span>🔍 Search</span>
+      <div class="kbd-shortcut">
+        <span class="kbd-badge">⌘</span>
+        <span class="kbd-badge">S</span>
+      </div>
+    </div>
+
+    <!-- MAIN NAV SECTION -->
+    <div class="nav-section">
+      <div class="section-title">MAIN</div>
+      
+      <div class="nav-parent">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="nav-icon">⊞</span>
+          <span class="nav-text">Dashboard</span>
+        </div>
+        <span class="nav-text" style="font-size: 0.75rem;">▲</span>
+      </div>
+
+      <ul class="tree-list">
+        <li class="tree-item active" onclick="switchNav('overview', this)">Overview</li>
+        <li class="tree-item" onclick="switchNav('topology', this)">Topology</li>
+        <li class="tree-item" onclick="switchNav('hardware', this)">Insights</li>
+      </ul>
+
+      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 4px;">
+        <div class="nav-simple-item" onclick="switchNav('datasets', this)">
+          <span class="nav-icon">📄</span>
+          <span class="nav-text">Dataset Studio</span>
+        </div>
+        <div class="nav-simple-item" onclick="switchNav('sdk', this)">
+          <span class="nav-icon">👛</span>
+          <span class="nav-text">Python SDK</span>
+        </div>
+        <div class="nav-simple-item" onclick="switchNav('overview', this)">
+          <span class="nav-icon">🔔</span>
+          <span class="nav-text">Notifications</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HARDWARE / MESSAGES SECTION -->
+    <div class="nav-section" style="margin-top: 10px;">
+      <div class="section-title" style="display: flex; justify-content: space-between;">
+        <span>HARDWARE</span>
+        <span>+</span>
+      </div>
+      <div class="contacts-list">
+        <div class="contact-item">
+          <div class="contact-avatar">
+            EH
+            <div class="status-dot-mini"></div>
+          </div>
+          <span class="nav-text">Cloud CUDA (T4)</span>
+        </div>
+        <div class="contact-item">
+          <div class="contact-avatar">
+            JJ
+            <div class="status-dot-mini"></div>
+          </div>
+          <span class="nav-text">Apple M2 Engine</span>
+        </div>
+        <div class="contact-item">
+          <div class="contact-avatar">
+            CF
+            <div class="status-dot-mini"></div>
+          </div>
+          <span class="nav-text">Raspberry Pi 4</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE CARD AT BOTTOM -->
+    <div class="profile-card">
+      <div class="profile-avatar-large">KS</div>
+      <div class="profile-details">
+        <span class="profile-name">Krushna Saruk</span>
+        <span class="profile-role">RL ADMIN</span>
+      </div>
+      <span class="profile-caret" style="color: var(--text-muted); font-size: 0.8rem;">˅</span>
     </div>
   </aside>
 
-  <!-- MAIN CANVAS -->
-  <main class="content-area">
-    <div class="header-bar">
-      <div class="breadcrumb-trail">
-        <span>⊞</span> <span>☆</span> <span>Dashboards</span> / <span class="active" id="bread-active">Overview</span>
-      </div>
-      <div class="header-tools">
-        <div class="tool-icon">🌙</div>
-        <div class="tool-icon">🔄</div>
-        <div class="tool-icon">🔔</div>
-        <div class="tool-icon">🌐</div>
-      </div>
-    </div>
-
-    <div class="page-title-row">
-      <h1 class="main-title" id="page-title-heading">Overview</h1>
-      <div class="dropdown-pill">Today ▾</div>
-    </div>
-
-    <!-- TAB 1: OVERVIEW -->
-    <div id="view-overview" class="tab-content-view active">
-      <!-- 4 Stat Cards -->
-      <div class="stat-row">
-        <div class="stat-box">
-          <span class="stat-label">Baseline Accuracy</span>
-          <span class="stat-number" id="val-base-acc">92.40%</span>
-          <span class="stat-indicator">↗ 0.4% vs target</span>
+  <!-- MAIN VIEWPORT -->
+  <main class="main-viewport">
+    <div class="content-card">
+      <div class="header-flex">
+        <div>
+          <h1 class="page-heading" id="view-title">Overview</h1>
+          <p style="font-size: 0.85rem; color: var(--text-sub);">Autonomous Multi-Objective Architecture Search Studio</p>
         </div>
-        <div class="stat-box">
-          <span class="stat-label">RL Discovered Acc</span>
-          <span class="stat-number" style="color: var(--lime-neon);" id="val-rl-acc">91.80%</span>
-          <span class="stat-indicator">↗ Meets Constraint</span>
-        </div>
-        <div class="stat-box">
-          <span class="stat-label">Parameter Drop</span>
-          <span class="stat-number" style="color: var(--lime-neon);" id="val-param-drop">-70.9%</span>
-          <span class="stat-indicator">2.15M → 0.62M</span>
-        </div>
-        <div class="stat-box">
-          <span class="stat-label">Latency Speedup</span>
-          <span class="stat-number" style="color: var(--lime-neon);" id="val-speedup">3.3x</span>
-          <span class="stat-indicator">↗ 2.73ms → 0.82ms</span>
+        <div>
+          <span class="badge-lime">● RL Policy Active (PPO)</span>
         </div>
       </div>
 
-      <!-- Middle Grid -->
-      <div class="middle-grid">
-        <div class="card-panel">
-          <div class="panel-top">
-            <h2 class="panel-heading">Architecture Compression Breakdown</h2>
+      <!-- TAB 1: OVERVIEW -->
+      <div id="tab-overview" class="tab-view-container active">
+        <div class="stat-cards-row">
+          <div class="stat-card-white">
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Baseline Accuracy</span>
+            <span class="stat-val-big" id="val-base-acc">92.40%</span>
+            <span style="font-size: 0.75rem; color: var(--text-sub);">Target: ≥ 90.0%</span>
           </div>
-          <div class="donut-flex">
-            <div style="width: 140px; height: 140px; position: relative;">
-              <canvas id="donutChart"></canvas>
-              <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                <span style="font-size: 1.1rem; font-weight: 800; font-family: 'JetBrains Mono', monospace;" id="donut-center-val">0.62M</span>
-                <div style="font-size: 0.65rem; color: var(--text-muted);">Params</div>
-              </div>
-            </div>
-            <div class="legend-list">
-              <div class="legend-item">
-                <span><span class="legend-dot" style="background: var(--lime-neon);"></span> Surviving Parameters</span>
-                <strong id="leg-surviving">624,100</strong>
-              </div>
-              <div class="legend-item">
-                <span><span class="legend-dot" style="background: #334155;"></span> Pruned Parameters</span>
-                <strong id="leg-pruned">1,523,302</strong>
-              </div>
-              <div class="legend-item">
-                <span><span class="legend-dot" style="background: #818cf8;"></span> INT8 Quantized Ops</span>
-                <strong>Linear & Conv</strong>
-              </div>
-            </div>
+          <div class="stat-card-white">
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">RL Discovered Acc</span>
+            <span class="stat-val-big" style="color: #16a34a;" id="val-rl-acc">91.80%</span>
+            <span class="badge-lime">Satisfies Target</span>
+          </div>
+          <div class="stat-card-white">
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Parameter Reduction</span>
+            <span class="stat-val-big" style="color: #16a34a;" id="val-param-drop">-70.9%</span>
+            <span style="font-size: 0.75rem; color: var(--text-sub);">2.15M → 0.62M</span>
+          </div>
+          <div class="stat-card-white">
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">CPU Speedup</span>
+            <span class="stat-val-big" style="color: #2563eb;" id="val-speedup">3.3x</span>
+            <span style="font-size: 0.75rem; color: var(--text-sub);">2.73ms → 0.82ms</span>
           </div>
         </div>
 
-        <div class="card-panel" style="background: linear-gradient(135deg, rgba(163, 230, 53, 0.1), var(--card-bg)); border-color: rgba(163, 230, 53, 0.3);">
-          <div class="panel-top">
-            <h2 class="panel-heading" style="color: var(--lime-neon);">⚡ Real-Time Speedup</h2>
+        <!-- Charts Grid -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px;">
+          <div style="background: #f8fafc; border: 1px solid var(--border-light); border-radius: 14px; padding: 18px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 12px;">Pareto Frontier (Accuracy vs Parameters)</h3>
+            <canvas id="paretoChart" height="150"></canvas>
           </div>
-          <div style="font-size: 1.8rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; margin: 10px 0;">
-            3.3x Faster
+          <div style="background: #f8fafc; border: 1px solid var(--border-light); border-radius: 14px; padding: 18px;">
+            <h3 style="font-size: 0.95rem; margin-bottom: 12px;">Layer Channels</h3>
+            <canvas id="channelsChart" height="150"></canvas>
           </div>
-          <p style="font-size: 0.78rem; color: var(--text-sub); margin-bottom: 16px;">
-            Optimized for CPU/Edge Deployment with 0-second startup latency.
-          </p>
-          <div style="background: var(--lime-neon); color: #000; font-weight: 800; text-align: center; padding: 10px; border-radius: 10px; font-size: 0.85rem; cursor: pointer;">
-            Deploy Model
-          </div>
+        </div>
+
+        <!-- Benchmark Table -->
+        <div style="background: #f8fafc; border: 1px solid var(--border-light); border-radius: 14px; padding: 18px;">
+          <h3 style="font-size: 0.95rem; margin-bottom: 12px;">Comparative Experimental Benchmarks</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Top-1 Accuracy</th>
+                <th>Parameters</th>
+                <th>FLOPs</th>
+                <th>Latency</th>
+                <th>Param Drop</th>
+              </tr>
+            </thead>
+            <tbody id="benchmark-tbody">
+              <!-- Dynamically Populated -->
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- Bottom Benchmark Table -->
-      <div class="table-panel">
-        <div class="panel-top">
-          <h2 class="panel-heading">Comparative Benchmark Table</h2>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Method</th>
-              <th>Top-1 Accuracy</th>
-              <th>Parameters</th>
-              <th>FLOPs</th>
-              <th>Latency</th>
-              <th>Param Drop</th>
-            </tr>
-          </thead>
-          <tbody id="benchmark-tbody">
-            <!-- Dynamic Rows -->
-          </tbody>
-        </table>
+      <!-- TAB 2: TOPOLOGY -->
+      <div id="tab-topology" class="tab-view-container">
+        <h3 style="font-size: 1rem; margin-bottom: 14px;">Layer-by-Layer Channel Topology</h3>
+        <div id="topology-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
       </div>
-    </div>
 
-    <!-- TAB 2: TOPOLOGY -->
-    <div id="view-topology" class="tab-content-view">
-      <div class="card-panel">
-        <div class="panel-top">
-          <h2 class="panel-heading">Layer Channel Topology Profile</h2>
-        </div>
-        <div id="topology-list" style="display: flex; flex-direction: column; gap: 12px;"></div>
-      </div>
-    </div>
-
-    <!-- TAB 3: HARDWARE -->
-    <div id="view-hardware" class="tab-content-view">
-      <div class="card-panel">
-        <div class="panel-top">
-          <h2 class="panel-heading">Hardware Deployment Throughput (FPS)</h2>
-        </div>
+      <!-- TAB 3: HARDWARE -->
+      <div id="tab-hardware" class="tab-view-container">
+        <h3 style="font-size: 1rem; margin-bottom: 14px;">Hardware Deployment Performance</h3>
         <div id="hardware-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;"></div>
       </div>
-    </div>
 
-    <!-- TAB 4: DATASETS -->
-    <div id="view-datasets" class="tab-content-view">
-      <div class="card-panel">
-        <div class="panel-top">
-          <h2 class="panel-heading">Supported Dataset Catalog</h2>
-        </div>
+      <!-- TAB 4: DATASETS -->
+      <div id="tab-datasets" class="tab-view-container">
+        <h3 style="font-size: 1rem; margin-bottom: 14px;">Supported Dataset Catalog</h3>
         <div id="dataset-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;"></div>
       </div>
-    </div>
 
-    <!-- TAB 5: PYTHON SDK -->
-    <div id="view-sdk" class="tab-content-view">
-      <div class="card-panel">
-        <div class="panel-top">
-          <h2 class="panel-heading">Python SDK (`netcompress`) Integration Guide</h2>
-        </div>
-        <div class="code-snippet">
+      <!-- TAB 5: PYTHON SDK -->
+      <div id="tab-sdk" class="tab-view-container">
+        <h3 style="font-size: 1rem; margin-bottom: 14px;">Python SDK (`netcompress`) Integration Guide</h3>
+        <div class="code-box">
 <pre>from netcompress import RLCompressor
 
 compressor = RLCompressor(model=my_model, val_loader=val_loader, target_accuracy=0.88)
@@ -703,115 +676,99 @@ compressor.export_onnx("./results/compressed_model.onnx")
 print(compressor.get_summary())</pre>
         </div>
       </div>
+
     </div>
   </main>
 
-  <!-- RIGHT SIDEBAR -->
-  <aside class="right-sidebar">
-    <div>
-      <div class="right-header">Notifications</div>
-      <div class="notif-list">
-        <div class="notif-row">
-          <div class="notif-bubble">✓</div>
-          <div>
-            <div style="font-weight: 600;">56 New Policy Actions</div>
-            <div style="color: var(--text-muted); font-size: 0.72rem;">Just now</div>
-          </div>
-        </div>
-        <div class="notif-row">
-          <div class="notif-bubble">✓</div>
-          <div>
-            <div style="font-weight: 600;">132 Model Evaluation Steps</div>
-            <div style="color: var(--text-muted); font-size: 0.72rem;">45 mins ago</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="right-header">Activities</div>
-      <div class="activity-timeline">
-        <div class="act-item">
-          <div class="act-dot"></div>
-          <div>
-            <div style="font-weight: 600;">Changed pruning ratio to 25%</div>
-            <div style="color: var(--text-muted); font-size: 0.72rem;">Just now</div>
-          </div>
-        </div>
-        <div class="act-item">
-          <div class="act-dot"></div>
-          <div>
-            <div style="font-weight: 600;">177 Conv channels pruned</div>
-            <div style="color: var(--text-muted); font-size: 0.72rem;">12 mins ago</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="right-header">Target Hardware Engines</div>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <div class="manager-card">
-          <span>Cloud CUDA (NVIDIA T4)</span>
-          <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--lime-neon);">1,450 FPS</span>
-        </div>
-        <div class="manager-card active-pill">
-          <span>Apple M2 Neural Engine</span>
-          <span style="font-family: 'JetBrains Mono', monospace; font-weight: 800;">2,800 FPS</span>
-        </div>
-        <div class="manager-card">
-          <span>Raspberry Pi 4</span>
-          <span style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--lime-neon);">42 FPS</span>
-        </div>
-      </div>
-    </div>
-  </aside>
-
   <script>
-    function switchTab(tabId, el) {
-      document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active'));
-      document.querySelectorAll('.tab-content-view').forEach(view => view.classList.remove('active'));
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+    }
+
+    function switchNav(tabId, el) {
+      document.querySelectorAll('.tree-item, .nav-simple-item').forEach(item => item.classList.remove('active'));
+      document.querySelectorAll('.tab-view-container').forEach(view => view.classList.remove('active'));
       
       el.classList.add('active');
-      document.getElementById('view-' + tabId).classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
       
       const titleMap = {
         'overview': 'Overview',
-        'topology': 'Layer Topology',
-        'hardware': 'Hardware Profiler',
-        'datasets': 'Dataset Studio',
-        'sdk': 'Python SDK & CLI Exporter'
+        'topology': 'Layer Topology Profile',
+        'hardware': 'Hardware Performance Simulator',
+        'datasets': 'Dataset Studio Catalog',
+        'sdk': 'Python SDK & Exporter'
       };
       
-      document.getElementById('bread-active').innerText = titleMap[tabId] || 'Overview';
-      document.getElementById('page-title-heading').innerText = titleMap[tabId] || 'Overview';
+      document.getElementById('view-title').innerText = titleMap[tabId] || 'Overview';
     }
 
-    let donutChart;
+    let paretoChart, channelsChart;
 
-    function renderDonut(baselineParams, rlParams) {
-      const pruned = Math.max(baselineParams - rlParams, 0);
-      const ctx = document.getElementById('donutChart').getContext('2d');
-      if (donutChart) donutChart.destroy();
+    function renderCharts(data) {
+      const baseline = data.find(d => d.method.includes('Baseline')) || data[0];
+      const rlModel = data.find(d => d.method.includes('RL')) || data[data.length - 1];
 
-      document.getElementById('donut-center-val').innerText = (rlParams / 1e6).toFixed(2) + 'M';
-      document.getElementById('leg-surviving').innerText = Number(rlParams).toLocaleString();
-      document.getElementById('leg-pruned').innerText = Number(pruned).toLocaleString();
+      if (baseline && rlModel) {
+        document.getElementById('val-base-acc').innerText = baseline.accuracy + '%';
+        document.getElementById('val-rl-acc').innerText = rlModel.accuracy + '%';
+        document.getElementById('val-param-drop').innerText = '-' + (rlModel['param_reduction_%'] || 70.9) + '%';
+        const speedup = (baseline.latency_ms / Math.max(rlModel.latency_ms, 0.01)).toFixed(1);
+        document.getElementById('val-speedup').innerText = speedup + 'x';
+      }
 
-      donutChart = new Chart(ctx, {
-        type: 'doughnut',
+      // Pareto Chart
+      const ctxPareto = document.getElementById('paretoChart').getContext('2d');
+      if (paretoChart) paretoChart.destroy();
+
+      paretoChart = new Chart(ctxPareto, {
+        type: 'scatter',
         data: {
-          labels: ['Surviving', 'Pruned'],
           datasets: [{
-            data: [rlParams, pruned],
-            backgroundColor: ['#a3e635', '#334155'],
-            borderWidth: 0
+            label: 'Explored Models',
+            data: data.map(d => ({ x: (d.params / 1e6).toFixed(2), y: d.accuracy, name: d.method })),
+            backgroundColor: '#0f172a',
+            pointRadius: 6
           }]
         },
         options: {
-          cutout: '75%',
           responsive: true,
-          plugins: { legend: { display: false } }
+          plugins: { legend: { labels: { color: '#64748b' } } },
+          scales: {
+            x: { title: { display: true, text: 'Parameters (M)', color: '#64748b' }, ticks: { color: '#64748b' } },
+            y: { title: { display: true, text: 'Accuracy (%)', color: '#64748b' }, ticks: { color: '#64748b' } }
+          }
+        }
+      });
+
+      // Channels Chart
+      const baseCh = (baseline && baseline.channels) ? baseline.channels : [64, 128, 256, 256, 512];
+      const rlCh = (rlModel && rlModel.channels) ? rlModel.channels : [48, 96, 192, 192, 256];
+
+      const ctxChannels = document.getElementById('channelsChart').getContext('2d');
+      if (channelsChart) channelsChart.destroy();
+
+      channelsChart = new Chart(ctxChannels, {
+        type: 'bar',
+        data: {
+          labels: baseCh.map((_, i) => `Conv${i+1}`),
+          datasets: [{
+            label: 'Baseline',
+            data: baseCh,
+            backgroundColor: '#e2e8f0'
+          }, {
+            label: 'RL Discovered',
+            data: rlCh,
+            backgroundColor: '#a3e635'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#64748b' } } },
+          scales: {
+            x: { ticks: { color: '#64748b' }, grid: { display: false } },
+            y: { ticks: { color: '#64748b' } }
+          }
         }
       });
     }
@@ -822,15 +779,15 @@ print(compressor.get_summary())</pre>
       data.forEach(row => {
         const isRL = row.method.includes('RL');
         const tr = document.createElement('tr');
-        if (isRL) tr.className = 'highlight-row';
+        if (isRL) tr.className = 'highlight-lime';
 
         tr.innerHTML = `
-          <td><span class="tag-badge ${isRL ? 'lime' : ''}">${row.method}</span></td>
-          <td style="${isRL ? 'color: var(--lime-neon); font-weight: 700;' : ''}">${row.accuracy}%</td>
+          <td><strong>${row.method}</strong></td>
+          <td style="${isRL ? 'font-weight: 800; color: #16a34a;' : ''}">${row.accuracy}%</td>
           <td>${Number(row.params).toLocaleString()}</td>
           <td>${(row.flops / 1e6).toFixed(1)}M</td>
           <td>${row.latency_ms} ms</td>
-          <td style="${isRL ? 'color: var(--lime-neon); font-weight: 700;' : ''}">${row['param_reduction_%']}%</td>
+          <td style="${isRL ? 'font-weight: 800; color: #16a34a;' : ''}">${row['param_reduction_%']}%</td>
         `;
         tbody.appendChild(tr);
       });
@@ -843,20 +800,20 @@ print(compressor.get_summary())</pre>
       const baseCh = (baseline && baseline.channels) ? baseline.channels : [64, 128, 256, 256, 512];
       const rlCh = (rlModel && rlModel.channels) ? rlModel.channels : [48, 96, 192, 192, 256];
 
-      const container = document.getElementById('topology-list');
+      const container = document.getElementById('topology-container');
       container.innerHTML = '';
 
       baseCh.forEach((bCount, i) => {
         const rCount = rlCh[i] !== undefined ? rlCh[i] : bCount;
         const pct = Math.round((rCount / bCount) * 100);
         const div = document.createElement('div');
-        div.style.cssText = 'display: grid; grid-template-columns: 140px 1fr 140px; align-items: center; gap: 16px; background: rgba(255,255,255,0.02); padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-color);';
+        div.style.cssText = 'display: grid; grid-template-columns: 140px 1fr 140px; align-items: center; gap: 16px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border-light);';
         div.innerHTML = `
           <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">Conv Block ${i+1}</div>
-          <div style="height: 10px; background: rgba(255,255,255,0.06); border-radius: 5px; overflow: hidden;">
-            <div style="width: ${pct}%; height: 100%; background: var(--lime-neon);"></div>
+          <div style="height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
+            <div style="width: ${pct}%; height: 100%; background: #a3e635;"></div>
           </div>
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--lime-neon); text-align: right;">${rCount} / ${bCount} Ch (${pct}%)</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 700; text-align: right;">${rCount} / ${bCount} Ch (${pct}%)</div>
         `;
         container.appendChild(div);
       });
@@ -870,12 +827,12 @@ print(compressor.get_summary())</pre>
         container.innerHTML = '';
         data.datasets.forEach(ds => {
           const card = document.createElement('div');
-          card.style.cssText = 'background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px;';
+          card.style.cssText = 'background: #f8fafc; border: 1px solid var(--border-light); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px;';
           card.innerHTML = `
-            <div style="font-weight: 700; color: var(--lime-neon); font-size: 0.95rem;">${ds.name}</div>
+            <div style="font-weight: 800; font-size: 0.95rem;">${ds.name}</div>
             <div style="font-size: 0.8rem; color: var(--text-sub);">${ds.description}</div>
             <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">
-              Classes: ${ds.classes} | Dimensions: ${ds.image_size} | Samples: ${ds.train_samples.toLocaleString()}
+              Classes: ${ds.classes} | Size: ${ds.image_size} | Samples: ${ds.train_samples.toLocaleString()}
             </div>
           `;
           container.appendChild(card);
@@ -894,10 +851,10 @@ print(compressor.get_summary())</pre>
 
         data.profiles.forEach(hw => {
           const card = document.createElement('div');
-          card.style.cssText = 'background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px;';
+          card.style.cssText = 'background: #f8fafc; border: 1px solid var(--border-light); border-radius: 10px; padding: 14px;';
           card.innerHTML = `
-            <div style="font-weight: 600; font-size: 0.85rem;">${hw.target}</div>
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 800; color: var(--lime-neon); margin: 4px 0;">${hw.fps} FPS</div>
+            <div style="font-weight: 700; font-size: 0.85rem;">${hw.target}</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 800; color: #16a34a; margin: 4px 0;">${hw.fps} FPS</div>
             <div style="font-size: 0.75rem; color: var(--text-sub);">Latency: ${hw.latency_ms} ms | Power: ${hw.power_w}W</div>
           `;
           container.appendChild(card);
@@ -911,20 +868,8 @@ print(compressor.get_summary())</pre>
       try {
         const res = await fetch('/api/benchmark');
         const data = await res.json();
-        
-        const baseline = data.find(d => d.method.includes('Baseline')) || data[0];
-        const rlModel = data.find(d => d.method.includes('RL')) || data[data.length - 1];
-
-        if (baseline && rlModel) {
-          document.getElementById('val-base-acc').innerText = baseline.accuracy + '%';
-          document.getElementById('val-rl-acc').innerText = rlModel.accuracy + '%';
-          document.getElementById('val-param-drop').innerText = '-' + (rlModel['param_reduction_%'] || 70.9) + '%';
-          const speedup = (baseline.latency_ms / Math.max(rlModel.latency_ms, 0.01)).toFixed(1);
-          document.getElementById('val-speedup').innerText = speedup + 'x';
-          renderDonut(baseline.params, rlModel.params);
-        }
-
         renderTable(data);
+        renderCharts(data);
         renderTopologyView(data);
         loadHardware();
         loadDatasets();
