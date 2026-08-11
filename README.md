@@ -107,14 +107,24 @@ pip install -r requirements.txt
 ```
 
 ### 2. Run RL Architecture Search & Benchmarking
-Run the architecture search using **PPO (Proximal Policy Optimization)**:
+Run architecture search on default dataset (**CIFAR-10**):
 ```bash
-python main.py --agent PPO --episodes 20 --train-baseline
+python main.py --agent PPO --episodes 30 --train-baseline
 ```
 
-Or run with **DQN Agent**:
+Train on **CIFAR-100** (100 fine-grained object categories):
 ```bash
-python main.py --agent DQN --episodes 20
+python main.py --dataset CIFAR-100 --agent PPO --episodes 30 --train-baseline
+```
+
+Train on **Fashion-MNIST** (Zalando clothing catalog):
+```bash
+python main.py --dataset Fashion-MNIST --agent PPO --episodes 30 --train-baseline
+```
+
+Train on **SVHN** (Street View House Numbers):
+```bash
+python main.py --dataset SVHN --agent PPO --episodes 30 --train-baseline
 ```
 
 ### 3. Launch Web Dashboard

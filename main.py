@@ -132,10 +132,14 @@ def main():
     parser.add_argument("--agent", type=str, default="PPO", choices=["PPO", "DQN"], help="RL Agent algorithm")
     parser.add_argument("--train-baseline", action="store_true", help="Train baseline CNN before RL search")
     parser.add_argument("--episodes", type=int, default=None, help="Override RL search episodes")
+    parser.add_argument("--dataset", type=str, default=None, choices=["CIFAR-10", "CIFAR-100", "Fashion-MNIST", "SVHN"], help="Target dataset name")
     parser.add_argument("--dashboard", action="store_true", help="Launch visual web dashboard server")
     args = parser.parse_args()
 
     config = load_config(args.config)
+
+    if args.dataset:
+        config["dataset"]["name"] = args.dataset
 
     # If --dashboard flag is passed, directly launch the web dashboard server
     if args.dashboard:
