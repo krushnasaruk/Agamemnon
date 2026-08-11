@@ -99,10 +99,11 @@ class ArchitectureSearchEnv(gym.Env):
         return state, info
 
     def _get_current_state(self, accuracy: float) -> np.ndarray:
-        curr_channels = self.current_model.get_channel_config()
+        curr_channels = self.current_model.get_channel_config() if hasattr(self.current_model, 'get_channel_config') else []
         curr_params = count_parameters(self.current_model)
         curr_flops = count_flops(self.current_model)
-        curr_latency = measure_latency(self.current_model, device=self.device)
+        eval_device = "cpu" if self.is_quantized else self.device
+        curr_latency = measure_latency(self.current_model, device=eval_device)
 
         return self.state_encoder.encode(
             accuracy=accuracy,

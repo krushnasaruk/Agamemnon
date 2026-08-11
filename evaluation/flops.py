@@ -8,7 +8,11 @@ def count_flops(model: nn.Module, input_size: Tuple[int, int, int, int] = (1, 3,
     including Conv2d and Linear layers.
     """
     total_flops = 0
-    device = next(model.parameters()).device if list(model.parameters()) else torch.device("cpu")
+    is_quantized = getattr(model, "is_quantized", False) or any("quantized" in type(m).__module__.lower() or "quantized" in type(m).__name__.lower() for m in model.modules())
+    if is_quantized:
+        device = torch.device("cpu")
+    else:
+        device = next(model.parameters()).device if list(model.parameters()) else torch.device("cpu")
 
     hooks = []
     

@@ -11,6 +11,10 @@ def evaluate_accuracy(
     Evaluates top-1 accuracy of a model on the given dataset loader.
     Returns float accuracy in range [0.0, 1.0].
     """
+    # Automatically fall back to CPU if model is quantized (quantized::linear_dynamic is CPU-only in PyTorch)
+    if getattr(model, "is_quantized", False) or any("quantized" in type(m).__module__.lower() or "quantized" in type(m).__name__.lower() for m in model.modules()):
+        device = "cpu"
+
     model.to(device)
     model.eval()
     
