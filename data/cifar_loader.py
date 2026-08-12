@@ -7,7 +7,8 @@ def get_cifar_dataloaders(
     dataset_name: str = "CIFAR-10",
     data_dir: str = "./data",
     batch_size: int = 128,
-    num_workers: int = 0
+    num_workers: int = 0,
+    force_synthetic: bool = False
 ):
     """
     Creates and returns train and test DataLoaders for CIFAR-10, CIFAR-100, Fashion-MNIST, or SVHN.
@@ -15,7 +16,11 @@ def get_cifar_dataloaders(
     """
     os.makedirs(data_dir, exist_ok=True)
     dname = dataset_name.upper().replace("_", "-")
-    
+
+    if force_synthetic or os.environ.get("USE_SYNTHETIC") == "1":
+        print(f"[Data] Using fast synthetic dataset for {dname}.")
+        return _make_synthetic_dataset(dname, batch_size, num_workers)
+
     # 1. CIFAR-100 Setup
     if dname == "CIFAR-100":
         mean, std = (0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)
@@ -101,6 +106,9 @@ def get_cifar_dataloaders(
             print(f"[Data] CIFAR-10 download failed ({e}). Using synthetic dataset.")
 
     # 5. Synthetic Fallback Dataset (3,000 train samples)
+    return _make_synthetic_dataset(dname, batch_size, num_workers)
+
+def _make_synthetic_dataset(dname: str, batch_size: int, num_workers: int):
     num_train = 3000
     num_test = 600
     num_classes = 100 if dname == "CIFAR-100" else 10
