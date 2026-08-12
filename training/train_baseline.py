@@ -91,4 +91,4 @@ def train_baseline_model(
 
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    train_baseline_model(epochs=5, device=device)
+    train_baseline_model(epochs=25, device=device)

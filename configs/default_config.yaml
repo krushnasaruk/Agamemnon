@@ -16,7 +16,7 @@ baseline_model:
   target_accuracy: 0.90 # Target threshold 90.0%
 
 baseline_training:
-  epochs: 1
+  epochs: 25
   batch_size: 128
   lr: 0.001
   weight_decay: 0.0005
